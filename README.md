@@ -9,6 +9,6 @@ require_relative "uws/uws"
 
 UWS::App.new()
 .get("/", lambda {|response, request| response.end("Hello World uWS from Ruby!")})
-.listen(8082, lambda {|socket, config| puts "Listening on port %d" % [config.port] })
+.listen(8082, lambda {|socket, config| puts "Listening on port #{config.port}" })
 .run()
 ```

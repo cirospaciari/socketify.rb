@@ -31,17 +31,48 @@ module UWS::CAPI
   ffi_lib 'c'
   ffi_lib './uws/libuwebsockets.so'
 
+
+  #http
+  callback :uws_method_handler, [:pointer, :pointer], :void
+  callback :uws_listen_handler, [:pointer, UWS::Uws_app_listen_config_t.by_value ], :void
   
   attach_function :uws_create_app, [], :pointer
-  callback :uws_method_handler, [:pointer, :pointer], :void
-  attach_function :uws_app_get, [ :pointer, :pointer, :uws_method_handler],  :void
-
-  callback :uws_listen_handler, [:pointer, UWS::Uws_app_listen_config_t.by_value ], :void
-  attach_function :uws_app_listen, [:pointer, :int, :uws_listen_handler ], :void
-  attach_function :uws_app_listen_with_config, [:pointer, UWS::Uws_app_listen_config_t.by_value, :uws_listen_handler ], :void
   attach_function :uws_app_run, [:pointer], :void
   attach_function :uws_app_destroy, [:pointer], :void
   attach_function :uws_socket_close, [:pointer, :int], :void
+  attach_function :uws_app_listen, [:pointer, :int, :uws_listen_handler ], :void
+  attach_function :uws_app_listen_with_config, [:pointer, UWS::Uws_app_listen_config_t.by_value, :uws_listen_handler ], :void
+  
+  attach_function :uws_app_get, [ :pointer, :pointer, :uws_method_handler],  :void
+  attach_function :uws_app_post, [ :pointer, :pointer, :uws_method_handler],  :void
+  attach_function :uws_app_options, [ :pointer, :pointer, :uws_method_handler],  :void
+  attach_function :uws_app_delete, [ :pointer, :pointer, :uws_method_handler],  :void
+  attach_function :uws_app_patch, [ :pointer, :pointer, :uws_method_handler],  :void
+  attach_function :uws_app_put, [ :pointer, :pointer, :uws_method_handler],  :void
+  attach_function :uws_app_head, [ :pointer, :pointer, :uws_method_handler],  :void
+  attach_function :uws_app_connect, [ :pointer, :pointer, :uws_method_handler],  :void
+  attach_function :uws_app_trace, [ :pointer, :pointer, :uws_method_handler],  :void
+  attach_function :uws_app_any, [ :pointer, :pointer, :uws_method_handler],  :void
+
+  attach_function :uws_constructor_failed, [:pointer], :int
+  attach_function :uws_num_subscribers, [:pointer, :pointer], :uint32
+  attach_function :uws_publish, [:pointer, :pointer, :pointer, :int, :int], :int
+  attach_function :uws_get_native_handle, [:pointer], :pointer
+  attach_function :uws_remove_server_name, [:pointer, :pointer], :void
+  attach_function :uws_add_server_name, [:pointer, :pointer], :void
+
+
+#   bool uws_constructor_failed(uws_app_t *app);
+#   unsigned int uws_num_subscribers(uws_app_t *app, const char *topic);
+#   bool uws_publish(uws_app_t *app, const char *topic, const char *message, uws_opcode_t opcode, bool compress);
+#   void *uws_get_native_handle(uws_app_t *app);
+#   void uws_remove_server_name(uws_app_t *app, const char *hostname_pattern);
+#   void uws_add_server_name(uws_app_t *app, const char *hostname_pattern);
+
+#   void uws_add_server_name_with_options(uws_app_t *app, const char *hostname_pattern, uws_socket_context_options_t options);
+#   void uws_missing_server_name(uws_app_t *app, uws_missing_server_handler handler);
+#   void uws_filter(uws_app_t *app, uws_filter_handler handler);
+
 
   #requests
   attach_function :uws_req_is_ancient, [:pointer], :int
@@ -308,8 +339,113 @@ class UWS::App
         @callbacks = {}
    end
 
+
+    def any(pattern, callback)
+        callback_key = "any:#{pattern}"
+        native_pattern = FFI::MemoryPointer.from_string(pattern)
+
+        #callback wrapper
+        @callbacks[callback_key] = Proc.new do |response, request| 
+            callback.call(UWS::AppResponse.new(response), UWS::AppRequest.new(request))
+        end
+
+        UWS::CAPI.uws_app_any(@native_app, native_pattern, @callbacks[callback_key])
+        return self
+    end
+
+    def trace(pattern, callback)
+        callback_key = "trace:#{pattern}"
+        native_pattern = FFI::MemoryPointer.from_string(pattern)
+
+        #callback wrapper
+        @callbacks[callback_key] = Proc.new do |response, request| 
+            callback.call(UWS::AppResponse.new(response), UWS::AppRequest.new(request))
+        end
+
+        UWS::CAPI.uws_app_trace(@native_app, native_pattern, @callbacks[callback_key])
+        return self
+    end
+
+    def connect(pattern, callback)
+        callback_key = "connect:#{pattern}"
+        native_pattern = FFI::MemoryPointer.from_string(pattern)
+
+        #callback wrapper
+        @callbacks[callback_key] = Proc.new do |response, request| 
+            callback.call(UWS::AppResponse.new(response), UWS::AppRequest.new(request))
+        end
+
+        UWS::CAPI.uws_app_connect(@native_app, native_pattern, @callbacks[callback_key])
+        return self
+    end
+
+    def head(pattern, callback)
+        callback_key = "head:#{pattern}"
+        native_pattern = FFI::MemoryPointer.from_string(pattern)
+
+        #callback wrapper
+        @callbacks[callback_key] = Proc.new do |response, request| 
+            callback.call(UWS::AppResponse.new(response), UWS::AppRequest.new(request))
+        end
+
+        UWS::CAPI.uws_app_head(@native_app, native_pattern, @callbacks[callback_key])
+        return self
+    end
+
+    def put(pattern, callback)
+        callback_key = "put:#{pattern}"
+        native_pattern = FFI::MemoryPointer.from_string(pattern)
+
+        #callback wrapper
+        @callbacks[callback_key] = Proc.new do |response, request| 
+            callback.call(UWS::AppResponse.new(response), UWS::AppRequest.new(request))
+        end
+
+        UWS::CAPI.uws_app_put(@native_app, native_pattern, @callbacks[callback_key])
+        return self
+    end
+
+    def patch(pattern, callback)
+        callback_key = "patch:#{pattern}"
+        native_pattern = FFI::MemoryPointer.from_string(pattern)
+
+        #callback wrapper
+        @callbacks[callback_key] = Proc.new do |response, request| 
+            callback.call(UWS::AppResponse.new(response), UWS::AppRequest.new(request))
+        end
+
+        UWS::CAPI.uws_app_patch(@native_app, native_pattern, @callbacks[callback_key])
+        return self
+    end
+
+    def delete(pattern, callback)
+        callback_key = "delete:#{pattern}"
+        native_pattern = FFI::MemoryPointer.from_string(pattern)
+
+        #callback wrapper
+        @callbacks[callback_key] = Proc.new do |response, request| 
+            callback.call(UWS::AppResponse.new(response), UWS::AppRequest.new(request))
+        end
+
+        UWS::CAPI.uws_app_delete(@native_app, native_pattern, @callbacks[callback_key])
+        return self
+    end
+
+    def options(pattern, callback)
+        callback_key = "options:#{pattern}"
+        native_pattern = FFI::MemoryPointer.from_string(pattern)
+
+        #callback wrapper
+        @callbacks[callback_key] = Proc.new do |response, request| 
+            callback.call(UWS::AppResponse.new(response), UWS::AppRequest.new(request))
+        end
+
+        UWS::CAPI.uws_app_options(@native_app, native_pattern, @callbacks[callback_key])
+        return self
+    end
+
    def get(pattern, callback)
-        callback_key = "get:%s" % pattern
+        callback_key = "get:#{pattern}"
         native_pattern = FFI::MemoryPointer.from_string(pattern)
 
         #callback wrapper
@@ -320,6 +456,19 @@ class UWS::App
         UWS::CAPI.uws_app_get(@native_app, native_pattern, @callbacks[callback_key])
         return self
    end
+   
+   def post(pattern, callback)
+        callback_key = "post:#{pattern}"
+        native_pattern = FFI::MemoryPointer.from_string(pattern)
+
+        #callback wrapper
+        @callbacks[callback_key] = Proc.new do |response, request| 
+            callback.call(UWS::AppResponse.new(response), UWS::AppRequest.new(request))
+        end
+
+        UWS::CAPI.uws_app_post(@native_app, native_pattern, @callbacks[callback_key])
+        return self
+    end
 
 
    def listen(port_or_config, callback)

@@ -1,0 +1,18 @@
+GIT
+  remote: https://github.com/ffi/ffi.git
+  revision: c438e3636d578099101379de49c4afeed160e72b
+  submodules: true
+  specs:
+    ffi (1.15.4)
+
+GEM
+  specs:
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  ffi!
+
+BUNDLED WITH
+   2.3.4

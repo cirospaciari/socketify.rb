@@ -41,7 +41,6 @@ module UWS::CAPI
   attach_function :uws_app_listen_with_config, [:pointer, UWS::Uws_app_listen_config_t.by_value, :uws_listen_handler ], :void
   attach_function :uws_app_run, [:pointer], :void
   attach_function :uws_app_destroy, [:pointer], :void
-  attach_function :uws_res_end, [:pointer, :pointer, :int], :void
   attach_function :uws_socket_close, [:pointer, :int], :void
 
   #requests
@@ -54,8 +53,161 @@ module UWS::CAPI
   attach_function :uws_req_get_query, [:pointer, :pointer], :pointer
   attach_function :uws_req_get_parameter, [:pointer, :uint16], :pointer
 
+  #response
+  attach_function :uws_res_end, [:pointer, :pointer, :int], :void
+  attach_function :uws_res_pause, [:pointer], :void
+  attach_function :uws_res_resume, [:pointer], :void
+  attach_function :uws_res_write_continue, [:pointer], :void
+  attach_function :uws_res_write_status, [:pointer, :pointer], :void
+  attach_function :uws_res_write_header, [:pointer, :pointer, :pointer], :void
+  attach_function :uws_res_write_header_int, [:pointer, :pointer, :uint64], :void
+  attach_function :uws_res_end_without_body, [:pointer], :void
+  attach_function :uws_res_write, [:pointer, :pointer], :int
+  attach_function :uws_res_get_write_offset, [:pointer], :uint64
+  attach_function :uws_res_has_responded, [:pointer], :int
+  attach_function :uws_res_upgrade, [:pointer, :pointer, :pointer, :pointer, :pointer, :pointer], :void
+
+  callback :uws_res_on_writable_handler, [:pointer, :uint64, :pointer], :int
+  callback :uws_res_on_aborted_handler, [:pointer, :pointer], :void
+  callback :uws_res_on_data_handler, [:pointer, :pointer, :int, :pointer], :void
+  
+  attach_function :uws_res_on_writable, [:pointer, :uws_res_on_writable_handler, :pointer], :void
+  attach_function :uws_res_on_aborted, [:pointer, :uws_res_on_aborted_handler, :pointer], :void
+  attach_function :uws_res_on_data, [:pointer, :uws_res_on_data_handler, :pointer], :void
+  
 end
 
+
+
+
+class UWS::AppResponse
+    attr_accessor :native_reponse
+    attr_accessor :callbacks
+
+    def initialize(response)
+        @native_response = response
+        @callbacks = {}
+    end
+
+    def upgrade(data, sec_web_socket_key, sec_web_socket_protocol, sec_web_socket_extensions, socket_context)
+    
+        data_ptr = nil
+        if(optional_data.kind_of? String)
+            data_ptr = FFI::MemoryPointer.from_string(optional_data)
+        end
+        
+        if(sec_web_socket_key.kind_of? String)
+            sec_web_socket_key_ptr = FFI::MemoryPointer.from_string(sec_web_socket_key)
+        else
+            sec_web_socket_key_ptr = FFI::MemoryPointer.from_string("")
+        end
+
+        if(sec_web_socket_protocol.kind_of? String)
+            sec_web_socket_protocol_ptr = FFI::MemoryPointer.from_string(sec_web_socket_protocol)
+        else
+            sec_web_socket_protocol_ptr = FFI::MemoryPointer.from_string("")
+        end
+
+        if(sec_web_socket_extensions.kind_of? String)
+            sec_web_socket_extensions_ptr = FFI::MemoryPointer.from_string(sec_web_socket_extensions)
+        else
+            sec_web_socket_extensions_ptr = FFI::MemoryPointer.from_string("")
+        end
+
+        UWS::CAPI.uws_res_upgrade(@native_reponse, data_ptr, sec_web_socket_key_ptr, sec_web_socket_protocol_ptr, sec_web_socket_extensions_ptr, socket_context.native_socket)
+    end
+
+    def on_data(callback, optional_data)
+        @callbacks["on_data"] = Proc.new do | response, chunk, is_end, optional_data|
+            data = optional_data.null? ? nil : optional_data.get_string(0)
+            chunk_data =  nil
+            if(!(chunk.null?))
+                chunk_data = chunk.get_string(0);
+                UWS::LibC.free(chunk)
+            end
+            callback.call(self, chunk_data, is_end != 0, data)
+        end
+        data_ptr = nil
+        if(optional_data.kind_of? String)
+            data_ptr = FFI::MemoryPointer.from_string(optional_data)
+        end
+        UWS::CAPI.uws_res_on_data(@native_reponse, @callbacks["on_data"], data_ptr)
+    end
+
+    def on_writable(callback, optional_data)
+        @callbacks["on_writable"] = Proc.new do |response, offset, optional_data|
+            data = optional_data.null? ? nil : optional_data.get_string(0)
+            callback.call(self, offset, data)
+        end
+        data_ptr = nil
+        if(optional_data.kind_of? String)
+            data_ptr = FFI::MemoryPointer.from_string(optional_data)
+        end
+        UWS::CAPI.uws_res_on_writable(@native_reponse, @callbacks["v"], data_ptr)
+    end
+
+    def on_aborted(callback, optional_data)
+        @callbacks["on_aborted"] = Proc.new do |response, optional_data|
+            data = optional_data.null? ? nil : optional_data.get_string(0)
+            callback.call(self, data)
+        end
+        data_ptr = nil
+        if(optional_data.kind_of? String)
+            data_ptr = FFI::MemoryPointer.from_string(optional_data)
+        end
+        UWS::CAPI.uws_res_on_aborted(@native_reponse, @callbacks["on_aborted"], data_ptr)
+    end
+
+    def end(message)
+        message = FFI::MemoryPointer.from_string(message)
+        UWS::CAPI.uws_res_end(@native_response, message, 1)
+    end
+
+    def end_without_body()
+        UWS::CAPI.uws_res_end_without_body(@native_response)
+    end
+
+    def pause()
+        UWS::CAPI.uws_res_pause(@native_response)
+    end
+
+    def resume()
+        UWS::CAPI.uws_res_resume(@native_response)
+    end
+
+    def get_write_offset()
+        return UWS::CAPI.uws_res_get_write_offset(@native_response)
+    end
+
+    def has_write_offset?()
+        return UWS::CAPI.uws_res_has_responded(@native_response) != 0
+    end
+
+    def write_continue()
+        UWS::CAPI.uws_res_write_continue(@native_response)
+    end
+    
+    def write_status(status)
+        status_ptr = FFI::MemoryPointer.from_string(status)
+        UWS::CAPI.uws_res_write_status(@native_response, status_ptr)
+    end
+    
+    def write(data)
+        data_ptr = FFI::MemoryPointer.from_string(data)
+        return UWS::CAPI.uws_res_write(@native_response, data_ptr) != 0
+    end
+
+    def write_header(key, value)
+        key_ptr = FFI::MemoryPointer.from_string(key)
+
+        if(value.kind_of? Integer)
+            value_ptr = FFI::MemoryPointer.from_string(value)
+            UWS::CAPI.uws_res_write_header(@native_response, key_ptr, value_ptr)
+        else
+            UWS::CAPI.uws_res_write_header_int(@native_response, key_ptr, value)
+        end
+    end
+end
 
 class UWS::AppRequest
     attr_accessor :native_socket
@@ -65,11 +217,11 @@ class UWS::AppRequest
     end
 
     def is_ancient?()
-        return UWS::CAPI.uws_req_is_ancient(@native_request) == 1
+        return UWS::CAPI.uws_req_is_ancient(@native_request) != 0
     end
 
     def get_yield?()
-        return UWS::CAPI.uws_req_get_yield(@native_request) == 1
+        return UWS::CAPI.uws_req_get_yield(@native_request) != 0
     end
 
     def set_yield(value)
@@ -139,25 +291,14 @@ class UWS::AppListenConfig
     
     def initialize(config)
         @native_config = config
+        host = config[:host]
+        @host = host.null? ? nil : host.get_string(0)
         @port = config[:port]
         @options = config[:options]
     end
 
 end
 
-class UWS::AppResponse
-    attr_accessor :native_reponse
-
-    def initialize(response)
-        @native_response = response
-    end
-
-    def end(message)
-        message = FFI::MemoryPointer.from_string(message)
-        UWS::CAPI.uws_res_end(@native_response, message, 1)
-    end
-
-end
 
 class UWS::App
     attr_accessor :native_app
@@ -190,7 +331,7 @@ class UWS::App
             end)
         else
             config = UWS::Uws_app_listen_config_t.new
-            config[:host] = FFI::MemoryPointer.from_string(port_or_config[:host])
+            config[:host] = port_or_config[:host] ? FFI::MemoryPointer.from_string(port_or_config[:host]) : FFI::MemoryPointer.from_string("")
             config[:port] = port_or_config[:port]
             config[:options] = port_or_config[:options]
 

@@ -6,4 +6,4 @@ UWS::App.new()
 .run()
 
 # or you can pass full options in .listen
-#.listen({ "port": 8082, "host": "127.0.0.1", "options": 0 }, lambda {|socket, config| puts "Listening on port %d" % [config.port] })
+#.listen({ "port": 8082, "host": "127.0.0.1", "options": 0 }, lambda {|socket, config| puts "Listening on port #{config.port}" })

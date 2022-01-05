@@ -146,6 +146,7 @@ class UWS::AppResponse
         end
 
         UWS::CAPI.uws_res_upgrade(@native_reponse, data_ptr, sec_web_socket_key_ptr, sec_web_socket_protocol_ptr, sec_web_socket_extensions_ptr, socket_context.native_socket)
+        return self
     end
 
     def on_data(callback, optional_data)
@@ -163,6 +164,7 @@ class UWS::AppResponse
             data_ptr = FFI::MemoryPointer.from_string(optional_data)
         end
         UWS::CAPI.uws_res_on_data(@native_reponse, @callbacks["on_data"], data_ptr)
+        return self
     end
 
     def on_writable(callback, optional_data)
@@ -175,6 +177,7 @@ class UWS::AppResponse
             data_ptr = FFI::MemoryPointer.from_string(optional_data)
         end
         UWS::CAPI.uws_res_on_writable(@native_reponse, @callbacks["v"], data_ptr)
+        return self
     end
 
     def on_aborted(callback, optional_data)
@@ -187,23 +190,31 @@ class UWS::AppResponse
             data_ptr = FFI::MemoryPointer.from_string(optional_data)
         end
         UWS::CAPI.uws_res_on_aborted(@native_reponse, @callbacks["on_aborted"], data_ptr)
+        return self
     end
 
     def end(message)
+        if(!(message.kind_of? String))
+            return nil
+        end
         message = FFI::MemoryPointer.from_string(message)
         UWS::CAPI.uws_res_end(@native_response, message, 1)
+        return self
     end
 
     def end_without_body()
         UWS::CAPI.uws_res_end_without_body(@native_response)
+        return self
     end
 
     def pause()
         UWS::CAPI.uws_res_pause(@native_response)
+        return self
     end
 
     def resume()
         UWS::CAPI.uws_res_resume(@native_response)
+        return self
     end
 
     def get_write_offset()
@@ -216,11 +227,13 @@ class UWS::AppResponse
 
     def write_continue()
         UWS::CAPI.uws_res_write_continue(@native_response)
+        return self
     end
     
     def write_status(status)
         status_ptr = FFI::MemoryPointer.from_string(status)
         UWS::CAPI.uws_res_write_status(@native_response, status_ptr)
+        return self
     end
     
     def write(data)
@@ -229,14 +242,18 @@ class UWS::AppResponse
     end
 
     def write_header(key, value)
+        if(!(key.kind_of? String))
+            return nil
+        end
         key_ptr = FFI::MemoryPointer.from_string(key)
 
         if(value.kind_of? Integer)
+            UWS::CAPI.uws_res_write_header_int(@native_response, key_ptr, value)
+        elsif(value.kind_of? String)
             value_ptr = FFI::MemoryPointer.from_string(value)
             UWS::CAPI.uws_res_write_header(@native_response, key_ptr, value_ptr)
-        else
-            UWS::CAPI.uws_res_write_header_int(@native_response, key_ptr, value)
         end
+        return self
     end
 end
 
@@ -275,6 +292,10 @@ class UWS::AppRequest
 
 
     def get_header(lower_case_name)
+        if(!(key.kind_of? String))
+            return nil
+        end
+        
         native_value = FFI::MemoryPointer.from_string(lower_case_name)
         pointer = UWS::CAPI.uws_req_get_header(@native_request, native_value)
         value = pointer.get_string(0)
@@ -283,6 +304,10 @@ class UWS::AppRequest
     end
 
     def get_query(key)
+        if(!(key.kind_of? String))
+            return nil
+        end
+        
         native_value = FFI::MemoryPointer.from_string(key)
         pointer = UWS::CAPI.uws_req_get_query(@native_request, native_value)
         value = pointer.get_string(0)
@@ -291,6 +316,10 @@ class UWS::AppRequest
     end
 
     def get_parameter(index)
+        if(!(index.kind_of? Integer))
+            return nil
+        end
+
         pointer = UWS::CAPI.uws_req_get_parameter(@native_request, index)
         value = pointer.get_string(0)
         UWS::LibC.free(pointer)
@@ -341,6 +370,10 @@ class UWS::App
 
 
     def any(pattern, callback)
+        if(!(pattern.kind_of? String))
+            return self
+        end
+        
         callback_key = "any:#{pattern}"
         native_pattern = FFI::MemoryPointer.from_string(pattern)
 
@@ -354,6 +387,10 @@ class UWS::App
     end
 
     def trace(pattern, callback)
+        if(!(pattern.kind_of? String))
+            return self
+        end
+        
         callback_key = "trace:#{pattern}"
         native_pattern = FFI::MemoryPointer.from_string(pattern)
 
@@ -367,6 +404,10 @@ class UWS::App
     end
 
     def connect(pattern, callback)
+        if(!(pattern.kind_of? String))
+            return self
+        end
+        
         callback_key = "connect:#{pattern}"
         native_pattern = FFI::MemoryPointer.from_string(pattern)
 
@@ -380,6 +421,10 @@ class UWS::App
     end
 
     def head(pattern, callback)
+        if(!(pattern.kind_of? String))
+            return self
+        end
+        
         callback_key = "head:#{pattern}"
         native_pattern = FFI::MemoryPointer.from_string(pattern)
 
@@ -393,6 +438,10 @@ class UWS::App
     end
 
     def put(pattern, callback)
+        if(!(pattern.kind_of? String))
+            return self
+        end
+        
         callback_key = "put:#{pattern}"
         native_pattern = FFI::MemoryPointer.from_string(pattern)
 
@@ -406,6 +455,10 @@ class UWS::App
     end
 
     def patch(pattern, callback)
+        if(!(pattern.kind_of? String))
+            return self
+        end
+        
         callback_key = "patch:#{pattern}"
         native_pattern = FFI::MemoryPointer.from_string(pattern)
 
@@ -419,6 +472,10 @@ class UWS::App
     end
 
     def delete(pattern, callback)
+        if(!(pattern.kind_of? String))
+            return self
+        end
+        
         callback_key = "delete:#{pattern}"
         native_pattern = FFI::MemoryPointer.from_string(pattern)
 
@@ -432,6 +489,10 @@ class UWS::App
     end
 
     def options(pattern, callback)
+        if(!(pattern.kind_of? String))
+            return self
+        end
+        
         callback_key = "options:#{pattern}"
         native_pattern = FFI::MemoryPointer.from_string(pattern)
 
@@ -445,6 +506,10 @@ class UWS::App
     end
 
    def get(pattern, callback)
+        if(!(pattern.kind_of? String))
+            return self
+        end
+
         callback_key = "get:#{pattern}"
         native_pattern = FFI::MemoryPointer.from_string(pattern)
 
@@ -458,6 +523,10 @@ class UWS::App
    end
    
    def post(pattern, callback)
+        if(!(pattern.kind_of? String))
+            return self
+        end
+
         callback_key = "post:#{pattern}"
         native_pattern = FFI::MemoryPointer.from_string(pattern)
 
@@ -472,18 +541,36 @@ class UWS::App
 
 
    def listen(port_or_config, callback)
-
-        if(port_or_config.kind_of? Integer)
-            @port = port_or_config  
-            UWS::CAPI.uws_app_listen(@native_app, @port, lambda do | socket, config | 
+        
+        if(port_or_config.nil?)
+            port = 3000  
+            UWS::CAPI.uws_app_listen(@native_app, port, lambda do | socket, config | 
+                callback.call(UWS::ListenSocket.new(socket, false), UWS::AppListenConfig.new(config))
+            end)
+        elsif(port_or_config.kind_of? Integer)
+            port = port_or_config  
+            UWS::CAPI.uws_app_listen(@native_app, port, lambda do | socket, config | 
                 callback.call(UWS::ListenSocket.new(socket, false), UWS::AppListenConfig.new(config))
             end)
         else
             config = UWS::Uws_app_listen_config_t.new
             config[:host] = port_or_config[:host] ? FFI::MemoryPointer.from_string(port_or_config[:host]) : FFI::MemoryPointer.from_string("")
-            config[:port] = port_or_config[:port]
-            config[:options] = port_or_config[:options]
+            
 
+            port = port_or_config[:port]
+            if(port.kind_of? Integer)
+                config[:port] = port
+            else
+                config[:port] = 8080
+            end
+            
+            options = port_or_config[:options]
+            if(options.kind_of? Integer)
+                config[:options] = options
+            else
+                config[:options] = 0
+            end
+            
             UWS::CAPI.uws_app_listen_with_config(@native_app, config, lambda do | socket, config | 
                 callback.call(UWS::ListenSocket.new(socket, false), UWS::AppListenConfig.new(config))
             end)

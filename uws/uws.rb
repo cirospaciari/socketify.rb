@@ -1,4 +1,5 @@
 require 'ffi'
+require 'json'
 
 module UWS
 
@@ -109,8 +110,6 @@ module UWS::CAPI
 end
 
 
-
-
 class UWS::AppResponse
     attr_accessor :native_reponse
     attr_accessor :callbacks
@@ -190,6 +189,11 @@ class UWS::AppResponse
             data_ptr = FFI::MemoryPointer.from_string(optional_data)
         end
         UWS::CAPI.uws_res_on_aborted(@native_reponse, @callbacks["on_aborted"], data_ptr)
+        return self
+    end
+
+    def json(payload)
+        self.write_header("Content-Type", "application/json").end(payload.to_json)
         return self
     end
 

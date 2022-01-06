@@ -202,7 +202,7 @@ class UWS::AppResponse
             return nil
         end
         message = FFI::MemoryPointer.from_string(message)
-        UWS::CAPI.uws_res_end(@native_response, message, 1)
+        UWS::CAPI.uws_res_end(@native_response, message, 0)
         return self
     end
 

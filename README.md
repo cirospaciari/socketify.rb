@@ -1,14 +1,22 @@
 # uWebSockets.rb
-Fast WebSocket and Http/Https server using FFI bindings with C API from [uNetworking/uWebSockets](https://github.com/uNetworking/uWebSockets)
+Fast WebSocket and Http/Https server using an native extension with C API from [uNetworking/uWebSockets](https://github.com/uNetworking/uWebSockets)
 
 > This project will adapt the full capi from uNetworking/uWebSockets but for now it's just this.
 
 ## Overly simple hello world app
 ```ruby
-require_relative "uws/uws"
+require "uws"
 
 UWS::App.new()
-.get("/", lambda {|response, request| response.end("Hello World uWS from Ruby!")})
-.listen(8082, lambda {|socket, config| puts "Listening on port #{config.port}" })
+.get("/", lambda {|response| response.end("Hello World uWS from Ruby!")})
+.listen(8082, lambda {|config| puts "Listening on port #{config.port}" })
 .run()
+```
+
+Gemfile:
+
+```gem
+source 'https://rubygems.org'
+
+gem 'uws', git: 'git://github.com/cirospaciari/uWebSockets.rb.git', branch: 'main', submodules: true
 ```

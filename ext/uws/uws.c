@@ -289,9 +289,7 @@ static VALUE uws_rb_app_init(VALUE self)
 
 void Init_uws(void)
 {
-  // #if RUBY_VERSION_MAJOR == 3
-    rb_ext_ractor_safe(true);
-  // #endif
+  rb_ext_ractor_safe(true);
   
   UWS_Module = rb_define_module("UWS");
 

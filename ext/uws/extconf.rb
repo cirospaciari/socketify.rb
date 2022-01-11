@@ -1,6 +1,10 @@
 require "mkmf"
 require 'rbconfig'
 require "fileutils"
+
+extension_name = 'uws'
+dir_config(extension_name)
+
 module OS
     def OS.windows?
       (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
@@ -46,4 +50,4 @@ else
     $LOCAL_LIBS << " #{File.join(UWEBSOCKETS_CAPI_DIR, "libuwebsockets.lib")} "
 end
 
-create_makefile "uws/uws"
+create_makefile(File.join(extension_name, extension_name))

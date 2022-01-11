@@ -18,5 +18,5 @@ Gemfile:
 ```gem
 source 'https://rubygems.org'
 
-gem 'uws', git: 'git://github.com/cirospaciari/uWebSockets.rb.git', branch: 'main', submodules: true
+gem 'uws', git: 'https://github.com/cirospaciari/uWebSockets.rb.git', branch: 'main', submodules: true
 ```

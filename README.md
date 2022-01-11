@@ -3,7 +3,7 @@ Fast WebSocket and Http/Https server using an native extension with C API from [
 
 > This project will adapt the full capi from uNetworking/uWebSockets but for now it's just this.
 
-## Overly simple hello world app
+### Overly simple hello world app
 ```ruby
 require "uws"
 
@@ -13,10 +13,13 @@ UWS::App.new()
 .run()
 ```
 
-Gemfile:
+### Gemfile
 
 ```gem
-source 'https://rubygems.org'
-
 gem 'uws', git: 'https://github.com/cirospaciari/uWebSockets.rb.git', branch: 'main', submodules: true
+```
+
+### Run
+```bash
+bundle exec ruby ./hello_world.rb
 ```

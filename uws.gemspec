@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary = 'Fast WebSocket and Http/Https server'
   s.description = 'Fast WebSocket and Http/Https server using FFI bindings with C API from uNetworking/uWebSockets.'
   s.licenses = ['MIT']
-
+  s.require_path = 'lib'
   s.files = Dir["{lib,ext}/**/*.{rb,h,c}"] + ['LICENSE', 'README.md']
   s.extensions = ["ext/uws/extconf.rb"]
 

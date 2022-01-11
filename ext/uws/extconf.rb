@@ -33,9 +33,6 @@ UWEBSOCKETS_CAPI_DIR = File.join(PACKAGE_ROOT_DIR, "uWebSockets", "capi")
 USOCKETS_INCLUDE_DIR = File.join(PACKAGE_ROOT_DIR, "uWebSockets","uSockets", "src")
 
 
-#enable static
-enable_config("static", true)
-
 $CFLAGS << " -O3 -flto -fPIC "
 $INCFLAGS << " -I #{UWEBSOCKETS_CAPI_DIR} -I #{USOCKETS_INCLUDE_DIR}"
 $DLDFLAGS << " -lstdc++ "

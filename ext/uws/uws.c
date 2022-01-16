@@ -9,6 +9,7 @@
 static VALUE UWS_App;
 static VALUE UWS_Module;
 static VALUE UWS_AppResponse;
+
 typedef struct
 {
   VALUE value;
@@ -92,8 +93,13 @@ static void uws_rb_generic_listen_handler(struct us_listen_socket_t *listen_sock
 
   VALUE UWS_ListenConfig = rb_const_get(UWS_Module, rb_intern("ListenConfig"));
   VALUE obj = rb_funcall(UWS_ListenConfig, rb_intern("new"), 3, port, host, options);
+  RB_GC_GUARD(UWS_ListenConfig);
+  RB_GC_GUARD(port);
+  RB_GC_GUARD(host);
+  RB_GC_GUARD(options);
 
   rb_funcall(callback, rb_intern("call"), 1, obj);
+  RB_GC_GUARD(obj);
 }
 
 static void uws_rb_generic_method_handler(uws_res_t *response, uws_req_t *request, void *user_data)
@@ -101,11 +107,14 @@ static void uws_rb_generic_method_handler(uws_res_t *response, uws_req_t *reques
   VALUE callback = ((uws_rb_callback_t *)user_data)->value;
 
   uws_rb_app_response_t *c_response;
+
   VALUE rb_response = rb_funcall(UWS_AppResponse, rb_intern("new"), 0);
   Data_Get_Struct(rb_response, uws_rb_app_response_t, c_response);
   c_response->ptr = response;
 
   rb_funcall(callback, rb_intern("call"), 1, rb_response);
+
+  RB_GC_GUARD(rb_response);
 }
 
 static VALUE uws_rb_app_get(VALUE self, VALUE pattern, VALUE callback)
@@ -125,6 +134,7 @@ static VALUE uws_rb_app_get(VALUE self, VALUE pattern, VALUE callback)
     return Qnil;
   }
 
+  //when size is not passed use StringValueCStr instead of RSTRING_PTR
   const char *c_pattern = StringValueCStr(pattern);
 
   uws_rb_callback_t *rb_callback = (uws_rb_callback_t *)malloc(sizeof(uws_rb_callback_t));
@@ -137,6 +147,8 @@ static VALUE uws_rb_app_get(VALUE self, VALUE pattern, VALUE callback)
   app->callbacks = item;
 
   uws_app_get(DEFAULT_APP, app->ptr, c_pattern, uws_rb_generic_method_handler, rb_callback);
+  RB_GC_GUARD(pattern);
+  RB_GC_GUARD(callback);
   return self;
 }
 
@@ -159,6 +171,7 @@ static VALUE uws_rb_app_listen(VALUE self, VALUE port_or_config, VALUE callback)
     rb_callback->app = app;
     int port = RB_NUM2INT(port_or_config);
     uws_app_listen(DEFAULT_APP, app->ptr, port, uws_rb_generic_listen_handler, rb_callback);
+    RB_GC_GUARD(callback);
   }
   else if (RB_TYPE_P(port_or_config, T_OBJECT))
   {
@@ -176,6 +189,8 @@ static VALUE uws_rb_app_listen(VALUE self, VALUE port_or_config, VALUE callback)
     rb_callback->value = callback;
     rb_callback->app = app;
     uws_app_listen_with_config(DEFAULT_APP, app->ptr, config, uws_rb_generic_listen_handler, rb_callback);
+    RB_GC_GUARD(rb_host);
+    RB_GC_GUARD(callback);
   }
   return self;
 }
@@ -190,11 +205,10 @@ static VALUE uws_rb_app_close(VALUE self)
 
 static VALUE uws_rb_app_response_new(VALUE klass)
 {
-  uws_rb_app_response_t *app;
+  uws_rb_app_response_t *response;
 
-  VALUE obj = Data_Make_Struct(klass, uws_rb_app_response_t, NULL, free, app);
-  app->ptr = NULL;
-
+  VALUE obj = Data_Make_Struct(klass, uws_rb_app_response_t, NULL, free, response);
+  response->ptr = NULL;
   return obj;
 }
 static VALUE uws_rb_app_write_header(VALUE self, VALUE header, VALUE value)
@@ -206,8 +220,10 @@ static VALUE uws_rb_app_write_header(VALUE self, VALUE header, VALUE value)
   }
   uws_rb_app_response_t *response;
   Data_Get_Struct(self, uws_rb_app_response_t, response);
-  uws_res_write_header(DEFAULT_APP, response->ptr, StringValueCStr(header), RSTRING_LEN(header), StringValueCStr(value), RSTRING_LEN(value));
-
+  uws_res_write_header(DEFAULT_APP, response->ptr, RSTRING_PTR(header), RSTRING_LEN(header), RSTRING_PTR(value), RSTRING_LEN(value));
+  
+  RB_GC_GUARD(header);
+  RB_GC_GUARD(value);
   return self;
 }
 
@@ -220,7 +236,9 @@ int uws_rb_set_all_headers(VALUE header, VALUE value, VALUE self)
   if (RB_TYPE_P(header, T_SYMBOL) && RB_TYPE_P(value, T_STRING))
   {
     header = rb_sym2str(header);
-    uws_res_write_header(DEFAULT_APP, response->ptr, StringValueCStr(header), RSTRING_LEN(header), StringValueCStr(value), RSTRING_LEN(value));
+    uws_res_write_header(DEFAULT_APP, response->ptr, RSTRING_PTR(header), RSTRING_LEN(header), RSTRING_PTR(value), RSTRING_LEN(value));
+    RB_GC_GUARD(header);
+    RB_GC_GUARD(value);
   }
   return ST_CONTINUE;
 }
@@ -238,7 +256,9 @@ static VALUE uws_rb_app_response_end_with_headers(VALUE self, VALUE message, VAL
 
   if (RB_TYPE_P(message, T_STRING))
   {
-    uws_res_end(DEFAULT_APP, response->ptr, StringValueCStr(message), RSTRING_LEN(message), false);
+    uws_res_end(DEFAULT_APP, response->ptr, RSTRING_PTR(message), RSTRING_LEN(message), false);
+    RB_GC_GUARD(message);
+    RB_GC_GUARD(headers);
   }
   return self;
 }
@@ -250,7 +270,8 @@ static VALUE uws_rb_app_response_end(VALUE self, VALUE message)
 
   if (RB_TYPE_P(message, T_STRING))
   {
-    uws_res_end(DEFAULT_APP, response->ptr, StringValueCStr(message), RSTRING_LEN(message), false);
+    uws_res_end(DEFAULT_APP, response->ptr, RSTRING_PTR(message), RSTRING_LEN(message), false);
+    RB_GC_GUARD(message);
   }
   return self;
 }
@@ -289,8 +310,10 @@ static VALUE uws_rb_app_init(VALUE self)
 
 void Init_uws(void)
 {
-  rb_ext_ractor_safe(true);
-  
+  // #ifdef RB_EXT_RACTOR_SAFE
+  //   RB_EXT_RACTOR_SAFE(true);
+  // #endif
+
   UWS_Module = rb_define_module("UWS");
 
   UWS_App = rb_define_class_under(UWS_Module, "App", rb_cObject);

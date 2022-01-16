@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email = 'ciro.spaciari@gmail.com'
   s.homepage = 'https://github.com/cirospaciari/uWebSockets.rb'
   s.summary = 'Fast WebSocket and Http/Https server'
-  s.description = 'Fast WebSocket and Http/Https server using FFI bindings with C API from uNetworking/uWebSockets.'
+  s.description = 'Fast WebSocket and Http/Https server using an native extension with C API from uNetworking/uWebSockets'
   s.licenses = ['MIT']
   s.require_path = 'lib'
   s.files = Dir["{lib,ext}/**/*.{rb,h,c}"] + ['LICENSE', 'README.md']

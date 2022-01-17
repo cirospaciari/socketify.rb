@@ -23,3 +23,17 @@ gem 'uws', git: 'https://github.com/cirospaciari/uWebSockets.rb.git', branch: 'm
 ```bash
 bundle exec ruby ./hello_world.rb
 ```
+
+### SSL version sample
+```ruby
+require "uws"
+
+UWS::SSLApp.new({
+    key_file_name: "./misc/key.pem",
+    cert_file_name: "./misc/cert.pem", 
+    passphrase: "1234"
+})
+.get("/", lambda {|response| response.end("Hello World uWS from Ruby!")})
+.listen(8082, lambda {|config| puts "Listening on port #{config.port}" })
+.run()
+```

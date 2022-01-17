@@ -4,3 +4,4 @@
 *.a
 *.log
 /ext/uws/Makefile
+tests/misc

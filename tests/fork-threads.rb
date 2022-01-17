@@ -23,14 +23,14 @@ def create_process
                     current_time = Time.now
                     $current_httpdate = current_time.httpdate
                 end
-   
+                
             end
         }
         main_thread = Thread.new {
 
             $app = UWS::App.new()
 
-            plaintext_handler = lambda do |res| 
+            plaintext_handler = lambda do |res, req| 
                 $mutex.synchronize do
                     res.write_header("Date",  $current_httpdate)
                        .write_header("Server", "uws.rb")
@@ -39,7 +39,7 @@ def create_process
                 end
             end
 
-            json_handler = lambda do |res| 
+            json_handler = lambda do |res, req| 
                 $mutex.synchronize do
                     res.write_header("Date",  $current_httpdate)
                        .write_header("Server", "uws.rb")

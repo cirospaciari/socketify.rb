@@ -1,9 +1,21 @@
 killall -9 ruby
+#generated self signed cert and key files
+mkdir -p ./misc
+FILE=./misc/key.pem
+if [ -f "$FILE" ]; then
+    echo "key and crt already created"
+else 
+    ../uWebSockets/uSockets/misc/gen_test_certs.sh
+    cp /tmp/certs/selfsigned_client_key.pem ./misc/key.pem
+    cp /tmp/certs/selfsigned_client_crt.pem ./misc/crt.pem
+fi
+
+
 cd ../ext/uws/
 ruby extconf.rb
 make
 cd ../../
-ruby -Ilib:ext -r uws ./tests/graceful-shutdown.rb --jit
+ruby -Ilib:ext -r uws ./tests/fork-threads.rb --jit
 killall -9 ruby
 
 #--yjit --jit

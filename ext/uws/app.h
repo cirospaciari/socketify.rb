@@ -40,7 +40,7 @@
         const char *c_pattern = StringValueCStr(pattern);                                                     \
         uws_rb_callback_t *rb_callback = (uws_rb_callback_t *)malloc(sizeof(uws_rb_callback_t));              \
         rb_callback->value = callback;                                                                        \
-        rb_callback->app = app;                                                                               \
+        rb_callback->data = app;                                                                               \
         uws_rb_callback_list_t *item = (uws_rb_callback_list_t *)malloc(sizeof(uws_rb_callback_list_t));      \
         item->value = rb_callback;                                                                            \
         item->next = app->callbacks;                                                                          \
@@ -90,14 +90,15 @@
     }                                                                                                                                 \
     static void uws_rb_generic_##TYPENAME##_method_handler(uws_res_t *response, uws_req_t *request, void *user_data)                  \
     {                                                                                                                                 \
-        VALUE callback = ((uws_rb_callback_t *)user_data)->value;                                                                     \
+        uws_rb_callback_t *callback_info = ((uws_rb_callback_t *)user_data);                                                          \
+        VALUE callback = callback_info->value;                                                                                        \
         uws_rb_app_response_t *c_response;                                                                                            \
         VALUE rb_response = rb_funcall(STATIC_UWS_APP_RESPONSE, rb_intern("new"), 0);                                                 \
         Data_Get_Struct(rb_response, uws_rb_app_response_t, c_response);                                                              \
         c_response->ptr = response;                                                                                                   \
         uws_rb_app_request_t *c_request;                                                                                              \
         VALUE rb_request = rb_funcall(STATIC_UWS_APP_REQUEST, rb_intern("new"), 0);                                                   \
-        Data_Get_Struct(rb_request, uws_rb_app_request_t, c_request);                                                                \
+        Data_Get_Struct(rb_request, uws_rb_app_request_t, c_request);                                                                 \
         c_request->ptr = request;                                                                                                     \
         rb_funcall(callback, rb_intern("call"), 2, rb_response, rb_request);                                                          \
         RB_GC_GUARD(rb_response);                                                                                                     \
@@ -115,7 +116,7 @@
         {                                                                                                                             \
             uws_rb_callback_t *rb_callback = (uws_rb_callback_t *)malloc(sizeof(uws_rb_callback_t));                                  \
             rb_callback->value = callback;                                                                                            \
-            rb_callback->app = app;                                                                                                   \
+            rb_callback->data = app;                                                                                                   \
             int port = RB_NUM2INT(port_or_config);                                                                                    \
             uws_app_listen(TYPE, app->ptr, port, uws_rb_generic_listen_handler, rb_callback);                                         \
             RB_GC_GUARD(callback);                                                                                                    \
@@ -153,7 +154,7 @@
             }                                                                                                                         \
             uws_rb_callback_t *rb_callback = (uws_rb_callback_t *)malloc(sizeof(uws_rb_callback_t));                                  \
             rb_callback->value = callback;                                                                                            \
-            rb_callback->app = app;                                                                                                   \
+            rb_callback->data = app;                                                                                                   \
             uws_app_listen_with_config(TYPE, app->ptr, config, uws_rb_generic_listen_handler, rb_callback);                           \
             RB_GC_GUARD(rb_host);                                                                                                     \
             RB_GC_GUARD(callback);                                                                                                    \
@@ -191,7 +192,7 @@
             }                                                                                                                         \
             uws_rb_callback_t *rb_callback = (uws_rb_callback_t *)malloc(sizeof(uws_rb_callback_t));                                  \
             rb_callback->value = callback;                                                                                            \
-            rb_callback->app = app;                                                                                                   \
+            rb_callback->data = app;                                                                                                   \
             uws_app_listen_with_config(TYPE, app->ptr, config, uws_rb_generic_listen_handler, rb_callback);                           \
             RB_GC_GUARD(rb_host);                                                                                                     \
             RB_GC_GUARD(callback);                                                                                                    \

@@ -13,8 +13,9 @@
 typedef struct
 {
   VALUE value;
-  void *app;
+  void *data;
 } uws_rb_callback_t;
+
 
 typedef struct uws_rb_callback_list_s
 {

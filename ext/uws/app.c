@@ -15,7 +15,7 @@ void uws_rb_generic_listen_handler(struct us_listen_socket_t *listen_socket, uws
     host = rb_str_new2(config.host);
   }
 
-  ((uws_rb_app_t *)info->app)->listening_socket = listen_socket;
+  ((uws_rb_app_t *)info->data)->listening_socket = listen_socket;
 
   //free callback data
   free(user_data);

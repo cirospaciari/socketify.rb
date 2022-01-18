@@ -18,7 +18,7 @@ ruby extconf.rb
 make clean
 make
 cd ../../
-ruby -Ilib:ext -r uws ./tests/fork-threads.rb --jit
+ruby -Ilib:ext -r uws ./tests/hello_world_async.rb --jit
 killall -9 ruby
 
 #--yjit --jit

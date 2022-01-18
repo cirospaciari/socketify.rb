@@ -8,7 +8,7 @@ Fast WebSocket and Http/Https server using an native extension with C API from [
 require "uws"
 
 UWS::App.new()
-.get("/", lambda {|response| response.end("Hello World uWS from Ruby!")})
+.get("/", lambda {|response, request| response.end("Hello World uWS from Ruby!")})
 .listen(8082, lambda {|config| puts "Listening on port #{config.port}" })
 .run()
 ```
@@ -33,7 +33,7 @@ UWS::SSLApp.new({
     cert_file_name: "./misc/cert.pem", 
     passphrase: "1234"
 })
-.get("/", lambda {|response| response.end("Hello World uWS from Ruby!")})
+.get("/", lambda {|response, request| response.end("Hello World uWS from Ruby!")})
 .listen(8082, lambda {|config| puts "Listening on port #{config.port}" })
 .run()
 ```

@@ -1,3 +1,4 @@
 source 'https://rubygems.org'
 
 gem 'uws', github: 'cirospaciari/uWebSockets.rb', branch: 'main', submodules: true
+gem 'async'

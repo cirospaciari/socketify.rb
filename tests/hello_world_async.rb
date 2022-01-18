@@ -31,7 +31,7 @@ main_thread = Thread.new {
       #Either way, here we go!
       Thread.new {
         sleep(5)
-        response.end("Hello, World!") unless aborted
+         response.end("Hello, World!") unless aborted
       }
     end
     $app.get("/", home_handler)

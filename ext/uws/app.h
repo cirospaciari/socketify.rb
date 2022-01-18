@@ -318,6 +318,7 @@
                     {                                                                                                                             \
                         options.ssl_prefer_low_memory_usage = RB_NUM2INT(rb_ssl_prefer_low_memory_usage);                                         \
                     }                                                                                                                             \
+                    RB_GC_GUARD(config);                                                                                                          \
                 }                                                                                                                                 \
                 else if (RB_TYPE_P(config, T_OBJECT))                                                                                             \
                 {                                                                                                                                 \
@@ -383,7 +384,7 @@
                     return self;                                                                                                                  \
                 }                                                                                                                                 \
                 uws_add_server_name_with_options(TYPE, app->listening_socket, StringValueCStr(hostname_pattern), options);                        \
-                RB_GC_GUARD(options);                                                                                                             \
+                RB_GC_GUARD(config);                                                                                                              \
             }                                                                                                                                     \
             RB_GC_GUARD(hostname_pattern);                                                                                                        \
         }                                                                                                                                         \

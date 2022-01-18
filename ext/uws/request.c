@@ -131,10 +131,9 @@ static VALUE uws_rb_req_get_parameter(VALUE self, VALUE parameter_index)
     return result;
 }
 
-VALUE Init_uws_request(VALUE UWS_Module)
+VALUE uws_request_init(VALUE UWS_Module)
 {
-    VALUE UWS_AppRequest;
-    UWS_AppRequest = rb_define_class_under(UWS_Module, "AppRequest", rb_cObject);
+    VALUE UWS_AppRequest = rb_define_class_under(UWS_Module, "AppRequest", rb_cObject);
     rb_define_alloc_func(UWS_AppRequest, uws_rb_app_request_new);
     rb_define_method(UWS_AppRequest, "is_ancient?", uws_rb_req_is_ancient, 0);
     rb_define_method(UWS_AppRequest, "get_yield?", uws_rb_req_get_yield, 0);
@@ -144,6 +143,5 @@ VALUE Init_uws_request(VALUE UWS_Module)
     rb_define_method(UWS_AppRequest, "get_header", uws_rb_req_get_header, 1);
     rb_define_method(UWS_AppRequest, "get_query", uws_rb_req_get_query, 1);
     rb_define_method(UWS_AppRequest, "get_parameter", uws_rb_req_get_parameter, 1);
-
     return UWS_AppRequest;
 }

@@ -3,9 +3,9 @@
 
 #include "./uws.h"
 
-void uws_rb_response_generic_writeble_handler(uws_res_t *res, uintmax_t value, void *user_data);
+bool uws_rb_response_generic_writeble_handler(uws_res_t *res, uintmax_t value, void *user_data);
 void uws_rb_response_generic_aborted_handler(uws_res_t *res, void *user_data);
-void uws_rb_response_generic_data_handler(uws_res_t *res, const char *chunk, size_t chunk_length, int is_end, void *user_data);
+void uws_rb_response_generic_data_handler(uws_res_t *res, const char *chunk, size_t chunk_length, bool is_end, void *opcional_data);
 
 #define uws_response_init(STATIC_VAR_NAME, STATIC_MODULE_NAME, TYPENAME, RUBY_NAME)                              \
     STATIC_VAR_NAME = rb_define_class_under(STATIC_MODULE_NAME, RUBY_NAME, rb_cObject);                          \
@@ -184,9 +184,6 @@ void uws_rb_response_generic_data_handler(uws_res_t *res, const char *chunk, siz
     }                                                                                                                                                                                 \
     static VALUE uws_rb_app_##TYPENAME##_response_upgrade(VALUE self, VALUE data, VALUE sec_web_socket_key, VALUE sec_web_socket_protocol, VALUE sec_web_socket_extensions, VALUE ws) \
     {                                                                                                                                                                                 \
-        uws_rb_app_response_t *response;                                                                                                                                              \
-        Data_Get_Struct(self, uws_rb_app_response_t, response);                                                                                                                       \
-        /*TODO: implement after WS functions */                                                                                                                                       \
         return self;                                                                                                                                                                  \
     }
 

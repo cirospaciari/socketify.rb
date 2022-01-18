@@ -15,6 +15,7 @@ fi
 
 cd ../ext/uws/
 ruby extconf.rb
+make clean
 make
 cd ../../
 ruby -Ilib:ext -r uws ./tests/fork-threads.rb --jit

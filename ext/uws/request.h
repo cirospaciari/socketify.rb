@@ -3,5 +3,5 @@
 
 #include "./uws.h"
 
-VALUE Init_uws_request(VALUE UWS_Module);
+VALUE uws_request_init(VALUE UWS_Module);
 #endif

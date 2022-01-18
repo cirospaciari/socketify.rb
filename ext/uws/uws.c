@@ -56,7 +56,7 @@ void Init_uws(void)
   uws_response_init(UWS_AppResponse, UWS_Module, default, "AppReponse");
   uws_response_init(UWS_AppSSLResponse, UWS_Module, ssl, "AppSSLReponse");
   //init request
-  UWS_AppRequest = Init_uws_request(UWS_Module);
+  UWS_AppRequest = uws_request_init(UWS_Module);
 
   //init app
   uws_app_init(UWS_App, UWS_Module, default, "App", 0);

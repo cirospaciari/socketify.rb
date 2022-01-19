@@ -1,40 +1,12 @@
 require "uws"
 require "time"
 require "json"
-require 'async'
-require 'net/http'
-require 'uri'
-
 # #Graceful Shutdown on SIGINT
 $app = nil
 Signal.trap("INT") { 
-    $app.close()
+  $app.close()
   exit
 }
-
-#do some requests async and encode to valid UTF-8
-def do_queries(queries, results)
-  requests = []
-
-  queries.each do |topic|
-    requests << Async do
-      #get query from google
-      http_response = Net::HTTP.get_response(URI "https://www.google.com/search?q=#{topic}")
-      content = http_response.body.force_encoding("UTF-8")
-      begin
-        unless content.valid_encoding?
-            content = http_response.body.encode( 'UTF-8', 'Windows-1251' )
-        end
-        
-      rescue EncodingError
-        content = content.encode("UTF-8", invalid: :replace, undef: :replace)
-      end
-      content
-    end
-  end
-  #wait and add to results
-  requests.each{ |n| results << n.wait }
-end
 
 main_thread = Thread.new {
     #if you dont want SSL just use $app = UWS::App.new()
@@ -52,16 +24,13 @@ main_thread = Thread.new {
         #so simply flag us as aborted
         aborted = true
       end)
-
-
-      #Do something async, in this case calls 3 requests, encode and serialize
-      Async do
-        results = []
-        do_queries(["async", "ruby", "uws"], results)
-        #Send response if the client dont abort
-        response.write_header("Content-Type", "application/json").end(results.to_json) unless aborted
-      end
-
+      #Simulate checking auth for 5 seconds. This looks like crap, never write
+      #code that utilize Thread like this
+      #Either way, here we go!
+      Thread.new {
+        sleep 5
+        response.end("Hello, World!") unless aborted
+      }
     end
     $app.get("/", home_handler)
     .listen(8082, lambda {|config| puts "Listening on port #{config.port}" })

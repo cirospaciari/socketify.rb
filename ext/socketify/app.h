@@ -1,7 +1,7 @@
 #ifndef UWS_APP_RB_H
 #define UWS_APP_RB_H
 
-#include "./uws.h"
+#include "./socketify.h"
 
 #define uws_app_init(STATIC_VAR_NAME, STATIC_MODULE_NAME, TYPENAME, RUBY_NAME, CONSTRUCTOR_PARAM_LENGTH)     \
     STATIC_VAR_NAME = rb_define_class_under(STATIC_MODULE_NAME, RUBY_NAME, rb_cObject);                      \

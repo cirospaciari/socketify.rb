@@ -1,4 +1,4 @@
-#include "./uws.h"
+#include "./socketify.h"
 #include "./response.h"
 #include "./app.h"
 #include "./request.h"
@@ -37,7 +37,7 @@ uws_app_http_method(UWS_SSL_APP, ssl, trace);
 uws_app_http_method(UWS_SSL_APP, ssl, any);
 
 //Initialize UWS module for ruby
-void Init_uws(void)
+void Init_socketify(void)
 {
   /* Ractor is still experimental so its disabled 
   #ifdef RB_EXT_RACTOR_SAFE
@@ -50,7 +50,7 @@ void Init_uws(void)
   VALUE UWS_Module;
 
   //init module
-  UWS_Module = rb_define_module("UWS");
+  UWS_Module = rb_define_module("Socketify");
 
   //init response
   uws_response_init(UWS_AppResponse, UWS_Module, default, "AppReponse");

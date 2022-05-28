@@ -2,7 +2,7 @@ require "mkmf"
 require 'rbconfig'
 require "fileutils"
 
-extension_name = 'uws'
+extension_name = 'socketify'
 dir_config(extension_name)
 
 module OS

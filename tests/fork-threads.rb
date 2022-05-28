@@ -1,4 +1,4 @@
-require "uws"
+require "socketify"
 require "time"
 require "json"
 
@@ -28,7 +28,7 @@ def create_process
         }
         main_thread = Thread.new {
 
-            $app = UWS::App.new()
+            $app = Socketify::App.new()
 
             plaintext_handler = lambda do |res, req| 
                 $mutex.synchronize do

@@ -1,4 +1,4 @@
-#include "./uws.h"
+#include "./socketify.h"
 #include "./app.h"
 
 void uws_rb_generic_listen_handler(struct us_listen_socket_t *listen_socket, uws_app_listen_config_t config, void *user_data)
@@ -20,7 +20,7 @@ void uws_rb_generic_listen_handler(struct us_listen_socket_t *listen_socket, uws
   //free callback data
   free(user_data);
 
-  VALUE UWS_Module = rb_const_get(rb_cObject, rb_intern("UWS"));
+  VALUE UWS_Module = rb_const_get(rb_cObject, rb_intern("Socketify"));
   VALUE UWS_ListenConfig = rb_const_get(UWS_Module, rb_intern("ListenConfig"));
   VALUE obj = rb_funcall(UWS_ListenConfig, rb_intern("new"), 3, port, host, options);
   RB_GC_GUARD(UWS_ListenConfig);

@@ -5,10 +5,10 @@ Fast WebSocket and Http/Https server using an native extension with C API from [
 
 ### Overly simple hello world app
 ```ruby
-require "uws"
+require "socketify"
 
-UWS::App.new()
-.get("/", lambda {|response, request| response.end("Hello World uWS from Ruby!")})
+Socketify::App.new()
+.get("/", lambda {|response, request| response.end("Hello World socketify from Ruby!")})
 .listen(8082, lambda {|config| puts "Listening on port #{config.port}" })
 .run()
 ```
@@ -16,7 +16,7 @@ UWS::App.new()
 ### Gemfile
 
 ```gem
-gem 'uws', git: 'https://github.com/cirospaciari/uWebSockets.rb.git', branch: 'main', submodules: true
+gem 'socketify', git: 'https://github.com/cirospaciari/socketify.rb.git', branch: 'main', submodules: true
 ```
 
 ### Run
@@ -26,14 +26,20 @@ bundle exec ruby ./hello_world.rb
 
 ### SSL version sample
 ```ruby
-require "uws"
+require "socketify"
 
-UWS::SSLApp.new({
+Socketify::SSLApp.new({
     key_file_name: "./misc/key.pem",
     cert_file_name: "./misc/cert.pem", 
     passphrase: "1234"
 })
-.get("/", lambda {|response, request| response.end("Hello World uWS from Ruby!")})
+.get("/", lambda {|response, request| response.end("Hello World socketify from Ruby!")})
 .listen(8082, lambda {|config| puts "Listening on port #{config.port}" })
 .run()
+```
+
+
+## Build and Test Local
+```bash
+cd ./ext/socketify && ruby extconf.rb && make && cd ../../ && ruby -Ilib:ext -r socketify ./tests/hello_world.rb
 ```

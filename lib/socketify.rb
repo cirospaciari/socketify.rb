@@ -1,8 +1,8 @@
   
-require "uws/uws"
+require "socketify/socketify"
 
 
-class UWS::ListenConfig
+class Socketify::ListenConfig
 
     attr_accessor :port
     attr_accessor :host

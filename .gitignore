@@ -3,5 +3,5 @@
 *.so
 *.a
 *.log
-/ext/uws/Makefile
+/ext/socketify/Makefile
 tests/misc

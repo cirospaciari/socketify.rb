@@ -1,7 +1,7 @@
 #ifndef UWS_RESPONSE_RB_H
 #define UWS_RESPONSE_RB_H
 
-#include "./uws.h"
+#include "./socketify.h"
 
 bool uws_rb_response_generic_writeble_handler(uws_res_t *res, uintmax_t value, void *user_data);
 void uws_rb_response_generic_aborted_handler(uws_res_t *res, void *user_data);

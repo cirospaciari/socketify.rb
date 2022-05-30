@@ -33,7 +33,7 @@ def create_process
             plaintext_handler = lambda do |res, req| 
                 $mutex.synchronize do
                     res.write_header("Date",  $current_httpdate)
-                       .write_header("Server", "uws.rb")
+                       .write_header("Server", "socketify")
                        .write_header("Content-Type","text/plain")
                        .end("Hello, World!")
                 end
@@ -42,7 +42,7 @@ def create_process
             json_handler = lambda do |res, req| 
                 $mutex.synchronize do
                     res.write_header("Date",  $current_httpdate)
-                       .write_header("Server", "uws.rb")
+                       .write_header("Server", "socketify")
                        .write_header("Content-Type","application/json")
                        .end({"message":"Hello, World!"}.to_json)
                 end

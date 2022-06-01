@@ -123,7 +123,7 @@ void uws_rb_response_generic_data_handler(uws_res_t *res, const char *chunk, siz
     {                                                                                                                                                                                 \
         uws_rb_app_response_t *response;                                                                                                                                              \
         Data_Get_Struct(self, uws_rb_app_response_t, response);                                                                                                                       \
-        uws_res_end_without_body(TYPE, response->ptr);                                                                                                                                \
+        uws_res_end_without_body(TYPE, response->ptr, false);                                                                                                                                \
         return self;                                                                                                                                                                  \
     }                                                                                                                                                                                 \
     static VALUE uws_rb_app_##TYPENAME##_response_get_write_offset(VALUE self)                                                                                                        \

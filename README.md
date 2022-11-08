@@ -1,7 +1,7 @@
-# Socketify.rb
+# socketify.rb
 Fast WebSocket and Http/Https server using an native extension with C API from [uNetworking/uWebSockets](https://github.com/uNetworking/uWebSockets)
 
-> This project will adapt the full capi from uNetworking/uWebSockets but for now it's just this.
+# This Project will resume when [socketify.py](https://github.com/cirospaciari/socketify.py) gets its first release!
 
 ### Overly simple hello world app
 ```ruby
